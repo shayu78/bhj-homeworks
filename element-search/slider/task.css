@@ -3,7 +3,7 @@ body {
 }
 .slider {
   position: relative;
-  height: 300px;
+  height: 100vh;
 }
 .slider__items {
   height: 100%;
