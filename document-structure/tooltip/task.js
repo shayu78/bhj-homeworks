@@ -1,7 +1,7 @@
 'use strict';
 
 [...document.querySelectorAll('.has-tooltip')].forEach((value) => {
-    value.insertAdjacentHTML('afterend', `<div class="tooltip">${value.getAttribute('title')}</div>`);
+    value.insertAdjacentHTML('afterEnd', `<div class="tooltip">${value.getAttribute('title')}</div>`);
     const tooltip = value.nextElementSibling;
     tooltip.style.position = "absolute";
     tooltip.dataset.position = "bottom";
