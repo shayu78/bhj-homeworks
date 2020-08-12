@@ -1,17 +1,19 @@
 'use strict';
 
-[...document.querySelectorAll('.has-tooltip')].forEach((value) => {
-    value.insertAdjacentHTML('afterEnd', `<div class="tooltip">${value.getAttribute('title')}</div>`);
-    const tooltip = value.nextElementSibling;
-    tooltip.style.position = "absolute";
-    tooltip.dataset.position = "bottom";
+const tooltip = document.createElement("div");
+tooltip.classList.add('tooltip');
+document.body.insertAdjacentElement("beforeEnd", tooltip);
+tooltip.style.position = "absolute";
 
+document.addEventListener('click', () => tooltip.classList.remove('tooltip_active'), true);
+
+[...document.querySelectorAll('.has-tooltip')].forEach((value) => {
     value.addEventListener('click', (event) => {
         event.preventDefault();
         const linkCoordinates = event.currentTarget.getBoundingClientRect();
-        const activeTooltip = document.querySelector('.tooltip_active');
+        tooltip.textContent = event.currentTarget.getAttribute('title');
         tooltip.classList.add('tooltip_active');
-        switch (tooltip.dataset.position) {
+        switch (event.currentTarget.dataset.position) {
             case "top": {
                 tooltip.style.top = `${linkCoordinates.top + window.pageYOffset - tooltip.offsetHeight - 5}px`;
                 tooltip.style.left = `${linkCoordinates.left}px`;
@@ -37,6 +39,5 @@
                 tooltip.style.left = `${linkCoordinates.left}px`;
             }
         }
-        if (activeTooltip) activeTooltip.classList.remove('tooltip_active');
     });
 });
