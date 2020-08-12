@@ -1,7 +1,10 @@
 'use strict';
 
 const cartProductsList = document.querySelector('.cart__products');
-cartProductsList.innerHTML = localStorage.getItem('cartProductsKey');
+
+let cartLSArray = JSON.parse(localStorage.getItem("cartProductsKey"));
+cartLSArray ? cartProductsList.innerHTML = cartLSArray.map((value) => getCartProductMarkup(value)).join('') : cartLSArray = [];
+
 // устанавливаем обработчики на удаление продуктов, восстановленных из хранилища
 [...document.querySelectorAll('.product__remove')].forEach((value) => {
     value.addEventListener("click", (event) => removeProduct(event.currentTarget));
@@ -38,25 +41,30 @@ if (!isCartEmpty()) cartElement.classList.add('cart_active');
         value.appendChild(cloneProductImage);
         let cartProductInfo = {};
 
-        if (!cartProductsList.hasChildNodes()) {
+        const cartLSIndex = cartLSArray.findIndex((item) => item.id === value.dataset.id);
+        if (cartLSArray.length === 0 || cartLSIndex === -1) {
+            // корзина пустая или в ней отсутствует такой товар - добавляем
+            cartLSArray.push({
+                id: value.dataset.id,
+                image: value.querySelector('.product__image').getAttribute("src"),
+                count: +productCount.textContent
+            });
             xOffset = (currentX - document.body.clientWidth / 2) / step;
             yOffset = (currentY - document.body.clientTop) / step;
-            productOperationAnimation("add");
+            productOperationAnimation("add", cartLSArray.slice(-1)[0]);
         } else {
+            // товар уже есть в корзине - обновляем
             cartProductInfo = getProductInfoFromCart(value.dataset.id);
-            if (!cartProductInfo.element) {
-                xOffset = (currentX - (cartProductsList.lastChild.offsetLeft + cartProductsList.lastChild.offsetWidth)) / step;
-                yOffset = (currentY - cartProductsList.clientTop) / step;
-                productOperationAnimation("add");
-            }
-            else {
+            if (cartProductInfo.element) {
+                cartLSArray[cartLSIndex].count += +productCount.textContent;
                 xOffset = (currentX - cartProductInfo.coords.left) / step;
                 yOffset = (currentY - (cartProductInfo.coords.top + window.pageYOffset)) / step;
-                productOperationAnimation("update");
-            }
+                productOperationAnimation("update", cartLSArray[cartLSIndex]);
+            } else cloneProductImage.remove();
         }
+        localStorage.setItem('cartProductsKey', JSON.stringify(cartLSArray));
 
-        function productOperationAnimation(operationType) {
+        function productOperationAnimation(operationType, data) {
             const interval = setInterval(() => {
                 step--;
                 currentX -= xOffset;
@@ -68,29 +76,22 @@ if (!isCartEmpty()) cartElement.classList.add('cart_active');
                     cloneProductImage.remove();
                     switch (operationType) {
                         case "add": {
-                            cartProductsList.insertAdjacentHTML('beforeEnd',
-                                `<div class="cart__product" data-id="${value.dataset.id}">
-                                <img class="cart__product-image" src="${value.querySelector('.product__image').getAttribute("src")}">
-                                <div class="cart__product-count">${productCount.textContent}</div>
-                                <div class="product__remove">Удалить из корзины</div>
-                            </div>`);
+                            cartProductsList.insertAdjacentHTML('beforeEnd', getCartProductMarkup(data));
                             cartProductsList.lastChild.querySelector('.product__remove').addEventListener("click", (event) => removeProduct(event.currentTarget));
                             break;
                         }
                         case "update": {
-                            cartProductInfo.element.querySelector('.cart__product-count').textContent = +cartProductInfo.element.querySelector('.cart__product-count').textContent + +productCount.textContent;
+                            cartProductInfo.element.querySelector('.cart__product-count').textContent = data.count;
                             break;
                         }
                         default: {
                             return;
                         }
                     }
-                    localStorage.setItem('cartProductsKey', cartProductsList.innerHTML);
-                    if (!isCartEmpty()) cartElement.classList.add('cart_active');
+                    cartElement.classList.add('cart_active');
                 }
             }, 10);
         };
-
     });
 });
 
@@ -107,11 +108,21 @@ function getProductInfoFromCart(id) {
 }
 
 function isCartEmpty() {
-    return [...cartProductsList.querySelectorAll('.cart__product')].length === 0;
+    return cartLSArray.length === 0;
 }
 
 function removeProduct(element) {
-    element.closest('.cart__product').remove();
+    const productElement = element.closest('.cart__product');
+    cartLSArray = cartLSArray.filter((value) => value.id !== productElement.dataset.id);
+    localStorage.setItem('cartProductsKey', JSON.stringify(cartLSArray));
+    productElement.remove();
     if (isCartEmpty()) cartElement.classList.remove('cart_active');
-    localStorage.setItem('cartProductsKey', cartProductsList.innerHTML);
+}
+
+function getCartProductMarkup(data) {
+    return `<div class="cart__product" data-id="${data.id}">
+        <img class="cart__product-image" src="${data.image}">
+        <div class="cart__product-count">${data.count}</div>
+        <div class="product__remove">Удалить из корзины</div>
+    </div>`;
 }
