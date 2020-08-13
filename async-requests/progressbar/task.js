@@ -6,7 +6,7 @@ formElement.addEventListener('submit', (event) => {
     const formData = new FormData(formElement);
     const xhr = new XMLHttpRequest();
 
-    xhr.open("POST", "https://netology-slow-rest.herokuapp.com/upload1.php");
+    xhr.open("POST", "https://netology-slow-rest.herokuapp.com/upload.php");
 
     xhr.upload.addEventListener("loadstart", (event) => progressElement.value = 0);
     xhr.upload.addEventListener("progress", (event) => {
