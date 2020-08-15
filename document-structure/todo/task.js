@@ -2,8 +2,14 @@
 
 const tasksList = document.querySelector('.tasks__list');
 
-let tasksLSArray = JSON.parse(localStorage.getItem("tasksKey"));
-tasksLSArray ? tasksList.innerHTML = tasksLSArray.map((value) => getTaskMarkup(value)).join('') : tasksLSArray = [];
+let tasksLSArray;
+try {
+  tasksLSArray = JSON.parse(localStorage.getItem("tasksKey"));
+  tasksLSArray ? tasksList.innerHTML = tasksLSArray.map((value) => getTaskMarkup(value)).join('') : tasksLSArray = [];
+} catch (exception) {
+    console.log(`Некорректный формат данных - ${exception.name} ${exception.message}`);
+    tasksLSArray = [];
+}
 
 // устанавливаем обработчики на удаление заданий, восстановленных из хранилища
 [...document.querySelectorAll('.task__remove')].forEach((value) => {
