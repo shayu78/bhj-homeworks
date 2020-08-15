@@ -24,12 +24,12 @@ function setView(event, activeClass, controlWidget) {
         }
         case 'color': {
             widgetParam = 'book_color-';
-            datasetParam = 'color';
+            datasetParam = 'textColor';
             break;
         }
         case 'bg': {
             widgetParam = 'book_bg-';
-            datasetParam = 'color';
+            datasetParam = 'bgColor';
             break;
         }
         default: return;
