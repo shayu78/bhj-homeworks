@@ -2,8 +2,14 @@
 
 const cartProductsList = document.querySelector('.cart__products');
 
-let cartLSArray = JSON.parse(localStorage.getItem("cartProductsKey"));
-cartLSArray ? cartProductsList.innerHTML = cartLSArray.map((value) => getCartProductMarkup(value)).join('') : cartLSArray = [];
+let cartLSArray;
+try {
+    cartLSArray = JSON.parse(localStorage.getItem("cartProductsKey"));
+    cartLSArray ? cartProductsList.innerHTML = cartLSArray.map((value) => getCartProductMarkup(value)).join('') : cartLSArray = [];
+} catch (exception) {
+    console.log(`Некорректный формат данных - ${exception.name} ${exception.message}`);
+    cartLSArray = [];
+}
 
 // устанавливаем обработчики на удаление продуктов, восстановленных из хранилища
 [...document.querySelectorAll('.product__remove')].forEach((value) => {
