@@ -1,6 +1,6 @@
 'use strict';
 
-document.querySelector('.signin').classList.add('signin_active');
+const signinElement = document.querySelector('.signin');
 const welcomeElement = document.querySelector('.welcome');
 const welcomeSpanElement = welcomeElement.querySelector('#user_id');
 
@@ -19,10 +19,7 @@ document.querySelector('#signin__form').addEventListener('submit', (event) => {
                     if (data.success) {
                         localStorage.setItem("sessionUserID", data.user_id);
                         welcomeMessage(data.user_id);
-                    } else {
-                        logout();
-                        alert("Неверный логин/пароль");
-                    }
+                    } else alert("Неверный логин/пароль");
                 } catch (exception) {
                     console.log(`Некорректный формат данных - ${exception.name} ${exception.message}`);
                 }
@@ -33,17 +30,17 @@ document.querySelector('#signin__form').addEventListener('submit', (event) => {
     event.currentTarget.reset();
 });
 
-function logout() {
-    localStorage.removeItem("sessionUserID");
-    welcomeSpanElement.textContent = '';
-    welcomeElement.classList.remove('welcome_active');
-}
-
 function welcomeMessage(text) {
     if (text) {
         welcomeSpanElement.textContent = text;
         welcomeElement.classList.add('welcome_active');
-    }
+        signinElement.classList.remove('signin_active');
+    } else signinElement.classList.add('signin_active');
 }
 
-document.querySelector('#logout__btn').addEventListener('click', (event) => logout());
+document.querySelector('#logout__btn').addEventListener('click', (event) => {
+    localStorage.removeItem("sessionUserID");
+    welcomeSpanElement.textContent = '';
+    welcomeElement.classList.remove('welcome_active');
+    signinElement.classList.add('signin_active');
+});
